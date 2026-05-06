@@ -1,0 +1,2 @@
+thay vì làm như cũ thì giờ gói hết những thông tin riêng của từng loại sản phẩm vào
+một biến có tên là params sau đó định nghĩa param cho từng loại sản phẩm ta ép kiểu xuống là được

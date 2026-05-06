@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;?import java.lang.*?&gt;&lt;?import javafx.scene.image.*?&gt;&lt;ImageView fitHeight=&quot;199.0&quot; fitWidth=&quot;231.0&quot; pickOnBounds=&quot;true&quot; preserveRatio=&quot;true&quot; xmlns=&quot;http://javafx.com/javafx/8&quot; xmlns:fx=&quot;http://javafx.com/fxml/1&quot;&gt;   &lt;image&gt;      &lt;Image url=&quot;@../image/Gemini_Generated_Image_x47elfx47elfx47e.png&quot; /&gt;   &lt;/image&gt;&lt;/ImageView&gt;;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LogIn">
+   <left>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fitHeight="199.0" fitWidth="231.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../image/Gemini_Generated_Image_x47elfx47elfx47e.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+   </left>
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="31.0" layoutY="110.0" text="Username:">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Label>
+            <Label layoutX="35.0" layoutY="181.0" text="Password:">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Label>
+            <TextField fx:id="username" layoutX="175.0" layoutY="117.0" promptText="Username" />
+            <TextField fx:id="passworld" layoutX="175.0" layoutY="185.0" promptText="Passworld" />
+            <Button fx:id="buttonLogin" layoutX="175.0" layoutY="305.0" mnemonicParsing="false" onAction="#userLogin" prefHeight="41.0" prefWidth="136.0" style="-fx-alignment: &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;?import java.lang.*?&gt;&lt;?import javafx.scene.image.*?&gt;&lt;ImageView fitHeight=&quot;199.0&quot; fitWidth=&quot;231.0&quot; pickOnBounds=&quot;true&quot; preserveRatio=&quot;true&quot; xmlns=&quot;http://javafx.com/javafx/8&quot; xmlns:fx=&quot;http://javafx.com/fxml/1&quot;&gt;   &lt;image&gt;      &lt;Image url=&quot;@../image/Gemini_Generated_Image_x47elfx47elfx47e.png&quot; /&gt;   &lt;/image&gt;&lt;/ImageView&gt;;" text="Log In" />
+            <Label fx:id="wrongLogin" layoutX="57.0" layoutY="263.0" textFill="RED" />
+         </children></AnchorPane>
+   </center>
+</BorderPane>
