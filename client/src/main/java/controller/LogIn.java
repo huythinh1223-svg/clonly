@@ -1,11 +1,22 @@
 package controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class LogIn {
 
@@ -66,6 +77,51 @@ public class LogIn {
         // });
 
         // Tạm thời in ra Console để bạn test xem nút bấm đã hoạt động chưa
-        System.out.println("Đã thu thập: User = " + user + ", Pass = " + pass);
+        wrongLogin.setText("Đang kết nối Server...");
+
+        // Chạy một Thread ngầm để không làm đơ giao diện
+        new Thread(() -> {
+            try (Socket socket = new Socket("localhost", 8888);
+                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+                // 1. Gửi request dạng chuỗi
+                String request = "LOGIN|" + user + "|" + pass;
+                out.println(request);
+
+                // 2. Chờ đọc phản hồi từ Server
+                String response = in.readLine();
+
+                // 3. Cập nhật lại giao diện dựa trên kết quả (BẮT BUỘC dùng Platform.runLater)
+                Platform.runLater(() -> {
+                    if ("SUCCESS".equals(response)) {
+                       chuyenSangTrangChu(event);
+                    } else if ("FAIL".equals(response)) {
+                        wrongLogin.setText("Tài khoản hoặc mật khẩu không chính xác!");
+                    } else {
+                        wrongLogin.setText("Lỗi từ server: " + response);
+                    }
+                });
+
+            } catch (Exception e) {
+                // Nếu không bật Server hoặc mất mạng
+                Platform.runLater(() -> wrongLogin.setText("Không thể kết nối tới Server!"));
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    private void chuyenSangTrangChu(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home.fxml"));
+            Parent homeRoot = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(homeRoot));
+            stage.setTitle("Trang chủ Đấu giá");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            wrongLogin.setText("Lỗi tải giao diện trang chủ!");
+        }
     }
 }
