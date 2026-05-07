@@ -53,18 +53,17 @@ class ClientHandler implements Runnable {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true)
         ) {
-            // Đọc tin nhắn từ Client
-            String request = in.readLine();
-            // CẢI TIẾN 1: Dùng vòng lặp while để giữ kết nối liên tục với Client
+            String request;
+
+            // Vòng lặp lắng nghe Client
             while ((request = in.readLine()) != null) {
                 System.out.println("Nhận được từ Client: " + request);
 
-                // CẢI TIẾN 2: Bộ định tuyến (Router) chia nhánh xử lý các lệnh khác nhau
                 if (request.startsWith("LOGIN")) {
                     handleLogin(request, out);
                 }
                 else if (request.equals("GET_AUCTIONS")) {
-                    handleGetAuctions(out);
+                    out.println("AUCTION_LIST|Tai nghe Sony-5500000|Bàn phím cơ-2150000");
                 }
                 else {
                     out.println("ERROR|Lệnh không hợp lệ");

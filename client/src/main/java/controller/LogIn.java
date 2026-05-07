@@ -88,6 +88,7 @@ public class LogIn {
                 // 1. Gửi request dạng chuỗi
                 String request = "LOGIN|" + user + "|" + pass;
                 out.println(request);
+                System.out.println("Client đã gửi: " + request);
 
                 // 2. Chờ đọc phản hồi từ Server
                 String response = in.readLine();

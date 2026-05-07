@@ -37,7 +37,7 @@ public class UserManager {
     // Hàm kiểm tra đăng nhập thực tế
     public boolean authenticate(String username, String password) {
         for (User u : users) {
-            if (u.getUsername().equals(username) && u.getPassword().equals(password)) {
+            if (username.equals(u.getUsername()) && password.equals(u.getPassword())) {
                 return true; // Khớp cả user và pass
             }
         }
