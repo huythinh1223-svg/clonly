@@ -1,4 +1,4 @@
-package controller;
+package controller.login;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -9,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -31,6 +30,9 @@ public class LogIn {
 
     @FXML
     private Label wrongLogin;
+
+    @FXML
+    private Button buttonSignup;
 
     @FXML
     void userLogin(ActionEvent event) {
@@ -95,7 +97,7 @@ public class LogIn {
                 // 3. Cập nhật lại giao diện dựa trên kết quả (BẮT BUỘC dùng Platform.runLater)
                 Platform.runLater(() -> {
                     if ("SUCCESS".equals(response)) {
-                       chuyenSangTrangChu(event);
+                      changeScence.switchScene(event,"/fxml/home.fxml", "Trang chủ Đấu giá");
                     } else if ("FAIL".equals(response)) {
                         wrongLogin.setText("Tài khoản hoặc mật khẩu không chính xác!");
                     } else {
@@ -110,18 +112,9 @@ public class LogIn {
             }
         }).start();
     }
-    private void chuyenSangTrangChu(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home.fxml"));
-            Parent homeRoot = loader.load();
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(homeRoot));
-            stage.setTitle("Trang chủ Đấu giá");
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            wrongLogin.setText("Lỗi tải giao diện trang chủ!");
-        }
+    @FXML
+    void userSignup(ActionEvent event) {
+        changeScence.switchScene(event, "/fxml/signup.fxml", "Đăng ký tài khoản");
     }
 }

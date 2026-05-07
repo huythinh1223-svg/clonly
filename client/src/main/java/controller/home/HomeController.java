@@ -1,4 +1,4 @@
-package controller;
+package controller.home;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
