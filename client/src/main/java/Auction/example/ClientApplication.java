@@ -11,7 +11,7 @@ public class ClientApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Đường dẫn bắt đầu bằng dấu "/" trỏ thẳng vào thư mục resources
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
         Parent root = loader.load();
 
         // Khởi tạo Scene (khung cảnh chứa giao diện)
