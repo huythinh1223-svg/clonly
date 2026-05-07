@@ -2,9 +2,7 @@ package dao;
 
 import Auction.example.model.auction.Auction;
 import Auction.example.model.auction.AuctionManager;
-import Auction.example.model.user.Admin;
-import Auction.example.model.user.User;
-import Auction.example.model.user.UserManager;
+import Auction.example.model.user.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +47,8 @@ public class DatabaseManager {
             // MẸO: Nếu Database trống (chạy lần đầu), tạo sẵn 1 tài khoản để bạn đăng nhập test
             System.out.println("=> CSDL User trống. Tạo tài khoản mặc định: admin / 123456");
             userManager.addUser(new Admin("U01", "admin", "123456", "Admin Hệ Thống", "admin@gmail.com",1));
+            userManager.addUser(new Bidder("U02", "nguoimua", "1111", "Trần Khách Hàng", "mua@gmail.com", 5000000.0));
+            userManager.addUser(new Seller("U03", "nguoiban", "2222", "Cửa hàng Đồ Cổ", "ban@gmail.com"));
         }
     }
 
