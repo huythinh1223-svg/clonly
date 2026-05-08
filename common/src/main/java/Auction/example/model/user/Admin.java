@@ -3,7 +3,10 @@ package Auction.example.model.user;
 import Auction.example.enums.UserRole;
 import Auction.example.model.auction.Auction;
 
-public class Admin extends User {
+import java.io.Serializable;
+
+public class Admin extends User implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int accessLevel1;
 
     public Admin(String id, String username, String passworld, String fullname, String email, int accessLevel1) {

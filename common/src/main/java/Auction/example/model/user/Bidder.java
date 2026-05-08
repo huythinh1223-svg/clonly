@@ -4,10 +4,12 @@ import Auction.example.enums.UserRole;
 import Auction.example.model.auction.Auction;
 import Auction.example.model.auction.Bid;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bidder  extends  User  {
+public class Bidder  extends  User implements Serializable {
+    private static final long serialVersionUID = 1L;
     private double balance;
     private List <Bid> bidHistory;
 
