@@ -4,10 +4,12 @@ import Auction.example.enums.UserRole;
 import Auction.example.model.auction.Auction;
 import Auction.example.model.item.items.Item;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Seller extends User {
+public class Seller extends User implements Serializable {
+    private static final long serialVersionUID = 1L;
     private List<Item> ownedItems;
 
     public Seller(String id, String username, String passworld, String fullname, String email) {

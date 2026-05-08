@@ -3,8 +3,10 @@ package Auction.example.model.user;
 import Auction.example.enums.UserRole;
 
 import javax.management.relation.Role;
+import java.io.Serializable;
 
-public abstract class User {
+public abstract class User implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String id;
     private String username;
     private String password;
