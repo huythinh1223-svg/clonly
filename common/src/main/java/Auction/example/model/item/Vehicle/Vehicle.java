@@ -3,7 +3,10 @@ package Auction.example.model.item.Vehicle;
 import Auction.example.enums.ItemCondition;
 import Auction.example.model.item.items.Item;
 
-public class Vehicle extends Item {
+import java.io.Serializable;
+
+public class Vehicle extends Item implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int mileage;
     private String engineType;
     private String licensePlate;
