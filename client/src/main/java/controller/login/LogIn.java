@@ -3,19 +3,9 @@ package controller.login;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
+import javafx.scene.control.*;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import service.LoginService;
 
 public class LogIn {
 
@@ -34,61 +24,102 @@ public class LogIn {
     @FXML
     private Button buttonSignup;
 
+    private final LoginService loginService = new LoginService();
+
     @FXML
     void userLogin(ActionEvent event) {
-        // 1. Lấy dữ liệu người dùng nhập
+
         String user = username.getText();
         String pass = passworld.getText();
 
-        // 2. Validate (Kiểm tra) cơ bản ngay tại Client để giảm tải cho Server
-        if (user.trim().isEmpty() || pass.trim().isEmpty()) {
-            wrongLogin.setText("Vui lòng nhập đầy đủ tài khoản và mật khẩu!");
-            wrongLogin.setStyle("-fx-text-fill: red;"); // Đổi màu chữ thành đỏ
-            return; // Dừng hàm lại ngay lập tức, không gửi lên Server nữa
+        if (user.trim().isEmpty()
+                || pass.trim().isEmpty()) {
+
+            wrongLogin.setText(
+                    "Vui lòng nhập đầy đủ thông tin!"
+            );
+
+            return;
         }
 
-        // 3. Báo hiệu cho người dùng biết đang xử lý
-        wrongLogin.setText("Đang kết nối tới máy chủ...");
-        wrongLogin.setStyle("-fx-text-fill: blue;"); // Đổi sang màu xanh
+        wrongLogin.setText(
+                "Đang kết nối tới server..."
+        );
 
+        buttonLogin.setDisable(true);
 
-        // Tạm thời in ra Console để bạn test xem nút bấm đã hoạt động chưa
-        wrongLogin.setText("Đang kết nối Server...");
+        Thread thread = new Thread(() -> {
 
-        // Chạy một Thread ngầm để không làm đơ giao diện
-        new Thread(() -> {
-            try (Socket socket = new Socket("localhost", 8888);
-                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try {
 
-                // 1. Gửi request dạng chuỗi
-                String request = "LOGIN|" + user + "|" + pass;
-                out.println(request);
+                String response =
+                        loginService.login(user, pass);
 
-                // 2. Chờ đọc phản hồi từ Server
-                String response = in.readLine();
-
-                // 3. Cập nhật lại giao diện dựa trên kết quả (BẮT BUỘC dùng Platform.runLater)
                 Platform.runLater(() -> {
-                    if ("SUCCESS".equals(response)) {
-                      changeScence.switchScene(event,"/fxml/home.fxml", "Trang chủ Đấu giá");
-                    } else if ("FAIL".equals(response)) {
-                        wrongLogin.setText("Tài khoản hoặc mật khẩu không chính xác!");
-                    } else {
-                        wrongLogin.setText("Lỗi từ server: " + response);
-                    }
+
+                    handleLoginResponse(
+                            response,
+                            event
+                    );
+
+                    buttonLogin.setDisable(false);
                 });
 
             } catch (Exception e) {
-                // Nếu không bật Server hoặc mất mạng
-                Platform.runLater(() -> wrongLogin.setText("Không thể kết nối tới Server!"));
+
                 e.printStackTrace();
+
+                Platform.runLater(() -> {
+
+                    wrongLogin.setText(
+                            "Không thể kết nối tới server!"
+                    );
+
+                    buttonLogin.setDisable(false);
+                });
             }
-        }).start();
+        });
+
+        thread.setDaemon(true);
+
+        thread.start();
+    }
+
+    private void handleLoginResponse(
+            String response,
+            ActionEvent event
+    ) {
+
+        switch (response) {
+
+            case "SUCCESS":
+
+                changeScence.switchScene(
+                        event,
+                        "/fxml/home.fxml",
+                        "Trang chủ đấu giá"
+                );
+
+                break;
+
+            case "FAIL":
+
+                wrongLogin.setText(
+                        "Sai tài khoản hoặc mật khẩu!"
+                );
+
+                break;
+
+            default:
+
+                wrongLogin.setText(
+                        "Lỗi từ server!"
+                );
+        }
     }
 
     @FXML
     void userSignup(ActionEvent event) {
-        changeScence.switchScene(event, "/fxml/signup.fxml", "Đăng ký tài khoản");
+        changeScence.switchScene(event, "/fxml/signup.fxml", "Đăng ký tài khoản" );
     }
 }
