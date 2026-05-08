@@ -30,8 +30,7 @@ public class Signup {
     @FXML
     private Button buttonSignup;
 
-    private final AuthService authService =
-            new AuthService();
+    private final AuthService authService = new AuthService();
 
     @FXML
     private void createAccount(ActionEvent event) {
@@ -45,9 +44,7 @@ public class Signup {
         if(full.isEmpty() || user.isEmpty()
                 || mail.isEmpty() || pass.isEmpty()) {
 
-            wrongSignup.setText(
-                    "Vui lòng nhập đầy đủ thông tin!"
-            );
+            wrongSignup.setText("Vui lòng nhập đầy đủ thông tin!");
 
             return;
         }
