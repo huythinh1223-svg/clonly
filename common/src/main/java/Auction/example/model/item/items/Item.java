@@ -24,6 +24,9 @@ public abstract class Item implements Serializable {
     public String getName() {
         return name;
     }
+    public String getDescription() {
+        return description;
+    }
     public double getStartingPrice() {
         return startingPrice;
     }
