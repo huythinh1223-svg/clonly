@@ -32,89 +32,51 @@ public class LogIn {
         String user = username.getText();
         String pass = passworld.getText();
 
-        if (user.trim().isEmpty()
-                || pass.trim().isEmpty()) {
-
+        if (user.trim().isEmpty() || pass.trim().isEmpty()) {
             wrongLogin.setText(
-                    "Vui lòng nhập đầy đủ thông tin!"
-            );
-
+                    "Vui lòng nhập đầy đủ thông tin!");
             return;
         }
 
-        wrongLogin.setText(
-                "Đang kết nối tới server..."
-        );
+        wrongLogin.setText("Đang kết nối tới server...");
 
         buttonLogin.setDisable(true);
 
         Thread thread = new Thread(() -> {
-
             try {
 
-                String response =
-                        loginService.login(user, pass);
+                String response = loginService.login(user, pass);
 
                 Platform.runLater(() -> {
-
-                    handleLoginResponse(
-                            response,
-                            event
-                    );
-
+                    handleLoginResponse(response, event);
                     buttonLogin.setDisable(false);
                 });
 
             } catch (Exception e) {
-
                 e.printStackTrace();
-
                 Platform.runLater(() -> {
-
-                    wrongLogin.setText(
-                            "Không thể kết nối tới server!"
-                    );
-
+                    wrongLogin.setText("Không thể kết nối tới server!");
                     buttonLogin.setDisable(false);
                 });
             }
         });
 
         thread.setDaemon(true);
-
         thread.start();
     }
 
-    private void handleLoginResponse(
-            String response,
-            ActionEvent event
-    ) {
-
+    private void handleLoginResponse(String response, ActionEvent event) {
         switch (response) {
-
             case "SUCCESS":
-
-                changeScence.switchScene(
-                        event,
-                        "/fxml/home.fxml",
-                        "Trang chủ đấu giá"
-                );
-
+                changeScence.switchScene(event, "/fxml/home.fxml", "Trang chủ đấu giá");
                 break;
 
             case "FAIL":
-
-                wrongLogin.setText(
-                        "Sai tài khoản hoặc mật khẩu!"
-                );
-
+                wrongLogin.setText("Sai tài khoản hoặc mật khẩu!");
                 break;
 
             default:
-
-                wrongLogin.setText(
-                        "Lỗi từ server!"
-                );
+                wrongLogin.setText("Lỗi từ server!");
         }
     }
 

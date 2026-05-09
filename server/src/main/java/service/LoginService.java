@@ -1,5 +1,4 @@
 package service;
-import
 import Auction.example.dto.LoginRequest;
 import Auction.example.dto.LoginResponse;
 
