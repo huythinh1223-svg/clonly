@@ -6,7 +6,7 @@ import network.AuctionroomClient;
 public class AutionroomService {
 
     // Thêm tham số controller để Service có thể truyền tiếp cho Network
-    public void processBid(Object controller, String username, String productName, String inputAmount, double currentPrice) {
+    public void processBid(Object controller, String auctionId, String bidderId, String inputAmount, double currentPrice) {
         try {
             double bidAmount = Double.parseDouble(inputAmount);
 
@@ -17,11 +17,8 @@ public class AutionroomService {
             }
 
             // Mọi thứ hợp lệ -> Đóng gói thành Object (Sử dụng class Serializable của bạn)
-            // BidRequest request = new BidRequest(username, productName, bidAmount);
-
-            // Ở đây tôi dùng String tạm để demo, bạn thay bằng object BidRequest của bạn nhé
-            String request = "BID|" + username + "|" + productName + "|" + bidAmount;
-
+            // Server yêu cầu format: PLACE_BID|auctionId|bidderId|amount
+            String request = "PLACE_BID|" + auctionId + "|" + bidderId + "|" + bidAmount;
             // Gọi tầng Network để gửi đi
             AuctionroomClient networkClient = new AuctionroomClient(controller);
             networkClient.sendBidRequest(request);
