@@ -155,7 +155,7 @@ public class Auction implements Serializable {
         if (!winnerId.equals(this.winnerId)) {
             return false;
         }
-        if (Math.abs(amount - currentPrice) < 0.01) {
+        if (amount >= currentPrice) {
             state = State.PAID;
             return true;
         }
