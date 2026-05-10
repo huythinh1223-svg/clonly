@@ -9,7 +9,6 @@ import Auction.example.model.item.Electronics.Electronics;
 import Auction.example.model.item.Vehicle.Vehicle;
 import Auction.example.model.item.Vehicle.VehicleParams;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class ItemFactory {
