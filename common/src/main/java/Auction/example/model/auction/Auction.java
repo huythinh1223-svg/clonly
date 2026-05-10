@@ -1,5 +1,6 @@
 package Auction.example.model.auction;
 
+import Auction.example.exceptions.UnauthorizedBidException;
 import Auction.example.model.item.items.Item;
 
 import java.io.Serializable;
@@ -124,7 +125,16 @@ public class Auction implements Serializable {
     }
 
     public synchronized void placeBid(String bidderId, double amount)
-            throws InvalidBidException, AuctionClosedException {
+            throws InvalidBidException, AuctionClosedException, UnauthorizedBidException {
+
+        if (bidderId.equals(sellerId)) {
+            throw new UnauthorizedBidException(
+                    "Seller cannot bid on own auction",
+                    sellerId,
+                    currentAuctionId
+            );
+        }
+
         if (state != State.RUNNING) {
             throw new AuctionClosedException("Auction is not running", currentAuctionId);
         }
