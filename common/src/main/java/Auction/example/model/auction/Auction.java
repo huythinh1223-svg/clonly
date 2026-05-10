@@ -52,9 +52,10 @@ public class Auction implements Serializable {
     private transient ScheduledFuture<?> future; // nhiem vu tu dong close auction trong tuong lai
 
     public Auction(String currentAuctionId, String sellerId, double startPrice, long duration,
-                   double minIncrementalPrice) {
+                   double minIncrementalPrice, Item auctionItem) {
         this.currentAuctionId = currentAuctionId;
         this.state = State.OPEN;
+        this.auctionItem = auctionItem;
         this.sellerId = sellerId;
         this.startPrice = startPrice;
         this.currentPrice = startPrice;

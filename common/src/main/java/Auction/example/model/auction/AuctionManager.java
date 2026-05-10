@@ -4,6 +4,7 @@ import Auction.example.exceptions.AuctionClosedException;
 import Auction.example.exceptions.InvalidBidException;
 import Auction.example.exceptions.UnauthorizedBidException;
 import Auction.example.interfaces.WalletService;
+import Auction.example.model.item.items.Item;
 import Auction.example.observer.AuctionObserver;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class AuctionManager {
     public Auction createAuction(String sellerId,
                                  double startPrice,
                                  long durationMinutes,
-                                 double minIncrementalPrice) {
+                                 double minIncrementalPrice, Item auctionItem) {
         String auctionId = idPrefix + idCounter.getAndIncrement();
 
         Auction auction = new Auction(
@@ -49,7 +50,8 @@ public class AuctionManager {
                 sellerId,
                 startPrice,
                 durationMinutes,
-                minIncrementalPrice
+                minIncrementalPrice,
+                auctionItem
         );
 
         Auction existing = auctions.putIfAbsent(auctionId, auction);
