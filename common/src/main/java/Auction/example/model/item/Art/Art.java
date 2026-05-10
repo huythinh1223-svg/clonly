@@ -3,7 +3,10 @@ package Auction.example.model.item.Art;
 import Auction.example.enums.ItemCondition;
 import Auction.example.model.item.items.Item;
 
-public class Art extends Item {
+import java.io.Serializable;
+
+public class Art extends Item implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String artistName;
     private int creationYear;
     private boolean isAuthentic;
