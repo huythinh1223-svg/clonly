@@ -1,17 +1,17 @@
 package controller.home;
 
-import controller.autionroom.AuctionroomController;
-import controller.login.changeScence;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.VBox;
 import service.Product;
-
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-
-import static service.MockDataServer.layDanhSachSanPhamTest;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class HomeController implements Initializable {
 
@@ -22,13 +22,42 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Giả sử lấy dữ liệu từ Server/Database
-        List<Product> products = layDanhSachSanPhamTest();
+        List<Product> products = fetchRealAuctions();
 
         // Vòng lặp tự động tạo các Card và nhét vào cái Khung đã làm ở Scene Builder
         for (Product p : products) {
             VBox card = createProductCard(p);
             productListContainer.getChildren().add(card);
         }
+    }
+
+    // Hàm gọi Socket lên Server xin danh sách
+    private List<Product> fetchRealAuctions() {
+        List<Product> list = new ArrayList<>();
+        try (Socket socket = new Socket("localhost", 8888);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            out.println("GET_AUCTIONS");
+            String response = in.readLine();
+
+            // Xử lý chuỗi Server trả về (AUCTION_LIST|ID~Tên~Giá~TrạngThái~Time~SellerId)
+            if (response != null && response.startsWith("AUCTION_LIST")) {
+                String[] parts = response.split("\\|");
+                for (int i = 1; i < parts.length; i++) {
+                    String[] data = parts[i].split("~");
+                    if (data.length >= 3) {
+                        // Tạm thời tạo đối tượng Product từ dữ liệu Server
+                        Product p = new Product(data[1], Double.parseDouble(data[2]));
+                        list.add(p);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi tải danh sách đấu giá từ Server!");
+            e.printStackTrace();
+        }
+        return list;
     }
 
     // Tái sử dụng lại hàm tạo giao diện Card mà bạn đã tối ưu ở câu trước
