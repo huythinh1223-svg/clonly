@@ -2,7 +2,9 @@ package Auction.example.model.item.items;
 
 import Auction.example.enums.ItemCondition;
 
-public abstract class Item {
+import java.io.Serializable;
+
+public abstract class Item implements Serializable {
     protected String id;
     protected String name;
     protected String description; // mô tả
@@ -21,6 +23,9 @@ public abstract class Item {
     public String getId() {return id;}
     public String getName() {
         return name;
+    }
+    public String getDescription() {
+        return description;
     }
     public double getStartingPrice() {
         return startingPrice;

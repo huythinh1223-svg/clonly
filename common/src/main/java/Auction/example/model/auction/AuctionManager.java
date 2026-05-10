@@ -5,12 +5,13 @@ import Auction.example.model.user.Bidder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AuctionManager {
-
-    // --- Singleton ---
     private static volatile AuctionManager instance;
+
+    private final Map<String, Auction> auctions = new ConcurrentHashMap<>();
 
     private AuctionManager() {}
 
@@ -25,15 +26,15 @@ public class AuctionManager {
         return instance;
     }
 
-    // --- Dữ liệu ---
-    private final Map<String, Auction> auctions = new ConcurrentHashMap<>();
-
-    // --- CRUD ---
     public void addAuction(Auction auction) {
-        if (auctions.containsKey(auction.getAuctionId())) {
+        if (auction == null) {
+            throw new IllegalArgumentException("Auction must not be null");
+        }
+        // putIfAbsent giúp tránh ghi đè phiên đấu giá đã tồn tại trong RAM.
+        Auction previous = auctions.putIfAbsent(auction.getAuctionId(), auction);
+        if (previous != null) {
             throw new IllegalArgumentException("Auction ID already exists: " + auction.getAuctionId());
         }
-        auctions.put(auction.getAuctionId(), auction);
     }
 
     public Auction getAuction(String auctionId) throws Exception {
@@ -42,6 +43,13 @@ public class AuctionManager {
             throw new Exception("Auction not found: " + auctionId);
         }
         return auction;
+    }
+
+    public Optional<Auction> findById(String auctionId) {
+        if (auctionId == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(auctions.get(auctionId));
     }
 
     public void removeAuction(String auctionId) throws Exception {
@@ -54,12 +62,18 @@ public class AuctionManager {
         return Collections.unmodifiableCollection(auctions.values());
     }
 
-    // --- Business logic ---
+    public void clear() {
+        auctions.clear();
+    }
+
     public void placeBid(String auctionId, Bidder bidder, double amount) throws Exception {
+        if (bidder == null) {
+            throw new IllegalArgumentException("Bidder must not be null");
+        }
         getAuction(auctionId).placeBid(bidder.getId(), amount);
     }
 
-    public void cancelAuction(String auctionId,String reason) throws Exception {
+    public void cancelAuction(String auctionId, String reason) throws Exception {
         getAuction(auctionId).cancel(reason);
     }
 
@@ -67,10 +81,9 @@ public class AuctionManager {
         return getAuction(auctionId).processPayment(winnerId, amount);
     }
 
-    // Lấy tất cả auction theo trạng thái
     public Collection<Auction> getAuctionsByState(Auction.State targetState) {
         return auctions.values().stream()
-                .filter(a -> a.getState() == targetState)
+                .filter(auction -> auction.getState() == targetState)
                 .toList();
     }
 }
