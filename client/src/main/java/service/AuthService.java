@@ -1,11 +1,11 @@
 package service;
 
-import network.SignupClinet;
+import network.SignupClient;
 
 public class AuthService {
 
-    private SignupClinet authClient =
-            new SignupClinet();
+    private SignupClient authClient =
+            new SignupClient();
 
     public String createAccount(
             String full,
