@@ -6,6 +6,7 @@ import Auction.example.exceptions.UnauthorizedBidException;
 import Auction.example.interfaces.WalletService;
 import Auction.example.model.item.items.Item;
 import Auction.example.observer.AuctionObserver;
+import Auction.example.enums.State;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,7 @@ public class AuctionManager {
 
     public interface AuctionManagerObserver {
         default void onAuctionCreated(String auctionId, String sellerId) {}
-        default void onAuctionRemoved(String auctionId, Auction.State finalState) {}
+        default void onAuctionRemoved(String auctionId, State finalState) {}
     }
 
     private final ConcurrentHashMap<String, Auction> auctions = new ConcurrentHashMap<>();
@@ -66,7 +67,7 @@ public class AuctionManager {
     public void startAuction(String auctionId) {
         Auction auction = getAuctionOrThrow(auctionId);
 
-        if (auction.getState() != Auction.State.OPEN) {
+        if (auction.getState() != State.OPEN) {
             throw new IllegalStateException(
                     "Auction " + auctionId + " cannot be started from state: " + auction.getState());
         }
@@ -80,7 +81,7 @@ public class AuctionManager {
         auction.cancel(reason);
         releaseHighestBidReserve(auction);
 
-        notifyGlobalObservers(o -> o.onAuctionRemoved(auctionId, Auction.State.CANCELED));
+        notifyGlobalObservers(o -> o.onAuctionRemoved(auctionId, State.CANCELED));
     }
 
     public void finishAuction(String auctionId) {
@@ -88,14 +89,14 @@ public class AuctionManager {
 
         auction.finish();
 
-        notifyGlobalObservers(o -> o.onAuctionRemoved(auctionId, Auction.State.FINISHED));
+        notifyGlobalObservers(o -> o.onAuctionRemoved(auctionId, State.FINISHED));
     }
 
     public boolean removeAuction(String auctionId) {
         Auction auction = auctions.get(auctionId);
         if (auction == null) return false;
 
-        Auction.State state = auction.getState();
+        State state = auction.getState();
 
         if (!canRemoveAuction(auction)) {
             throw new IllegalStateException(
@@ -190,7 +191,7 @@ public class AuctionManager {
         return Optional.ofNullable(auctions.get(auctionId));
     }
 
-    public List<Auction> getAuctionsByState(Auction.State state) {
+    public List<Auction> getAuctionsByState(State state) {
         return auctions.values().stream()
                 .filter(a -> a.getState() == state)
                 .collect(Collectors.toList());
@@ -208,17 +209,17 @@ public class AuctionManager {
 
     public long getRunningCount() {
         return auctions.values().stream()
-                .filter(a -> a.getState() == Auction.State.RUNNING)
+                .filter(a -> a.getState() == State.RUNNING)
                 .count();
     }
 
     public void cancelAll(String reason) {
         auctions.values().forEach(a -> {
-            Auction.State s = a.getState();
-            if (s == Auction.State.OPEN || s == Auction.State.RUNNING) {
+            State s = a.getState();
+            if (s == State.OPEN || s == State.RUNNING) {
                 a.cancel(reason);
                 releaseHighestBidReserve(a);
-                notifyGlobalObservers(o -> o.onAuctionRemoved(a.getAuctionId(), Auction.State.CANCELED));
+                notifyGlobalObservers(o -> o.onAuctionRemoved(a.getAuctionId(), State.CANCELED));
             }
         });
     }
@@ -245,13 +246,13 @@ public class AuctionManager {
     }
 
     private boolean canRemoveAuction(Auction auction) {
-        Auction.State state = auction.getState();
+        State state = auction.getState();
 
-        if (state == Auction.State.PAID || state == Auction.State.CANCELED) {
+        if (state == State.PAID || state == State.CANCELED) {
             return true;
         }
 
-        return state == Auction.State.FINISHED && auction.getHighestBidderId() == null;
+        return state == State.FINISHED && auction.getHighestBidderId() == null;
     }
 
     private void releaseHighestBidReserve(Auction auction) {
