@@ -1,9 +1,9 @@
 package network;
 
 import javafx.application.Platform;
-
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class AuctionroomClient {
@@ -18,32 +18,24 @@ public class AuctionroomClient {
         this.controller = controller;
     }
 
-    public void sendBidRequest(Object bidRequest) {
-        // TẠO MỘT LUỒNG MỚI (THREAD) ĐỂ KHÔNG LÀM ĐƠ GIAO DIỆN
+    public void sendBidRequest(String request) {
         new Thread(() -> {
             // Dùng try-with-resources để tự động đóng luồng sau khi dùng xong
             try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-                // 1. Đẩy Object (BidRequest) lên Server
-                oos.writeObject(bidRequest);
-                oos.flush();
-                System.out.println("Đã gửi request đấu giá lên Server...");
+                // Gửi request dạng String lên Server
+                out.println(request);
+                System.out.println("Đã gửi request đấu giá lên Server: " + request);
 
-                // 2. Chờ Server xử lý và trả kết quả về (Thread sẽ tạm dừng ở đây cho đến khi có phản hồi)
-                Object response = ois.readObject();
+                // Chờ Server xử lý
+                String response = in.readLine();
 
-                // 3. Có kết quả từ Server! CẬP NHẬT GIAO DIỆN
-                // Bắt buộc phải bọc trong Platform.runLater để đẩy lệnh về lại luồng UI của JavaFX
                 Platform.runLater(() -> {
-                    // Giả sử response trả về là String "SUCCESS" hoặc object BidResponse
-                    System.out.println("Server trả về: " + response.toString());
-
-                    // Tại đây, bạn có thể ép kiểu controller và gọi hàm cập nhật giao diện
-                    // ((AuctionroomController) controller).updateUIAfterBidding(response);
+                    System.out.println("Server trả về: " + response);
+                    // TODO: Ép kiểu controller và cập nhật UI dựa trên chữ SUCCESS hoặc FAIL
                 });
-
             } catch (Exception e) {
                 e.printStackTrace();
                 Platform.runLater(() -> {

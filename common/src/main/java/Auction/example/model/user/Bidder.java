@@ -52,8 +52,14 @@ public class Bidder  extends  User implements Serializable {
             return; // mếu sai thì dừng hàm
         }
 
-        System.out.println("Da giá: " + price);
-         balance = balance - price;
+        System.out.println("Đặt giá thành công ghi nhận mức: " + price);
+    }
+
+    // Hàm mới để Server gọi khi thanh toán (phiên kết thúc)
+    public void deductBalance(double amount) {
+        if (this.balance >= amount) {
+            this.balance -= amount;
+        }
     }
 // cập nhập số dư nạp thêm tiền.
     public void topUPBalance (double amount ) {
