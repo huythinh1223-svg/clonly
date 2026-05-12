@@ -1,4 +1,4 @@
-package Auction.example.exception;
+package Auction.example.exceptions;
 
 import Auction.example.enums.AuthenticationError;
 

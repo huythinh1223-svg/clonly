@@ -45,27 +45,34 @@ public class AuctionroomController {
 
     @FXML
     public void Bidded(ActionEvent event) {
-        String inputAmount = amount.getText();
+        String inputAmount = amount.getText().trim();
 
-        // 1. Nhờ Service kiểm tra và xử lý logic
-        String result = "SECCESS"; //auctionService.validateAndProcessBid(currentProduct, inputAmount, currentBalance);
+        if (inputAmount.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Vui lòng nhập giá bid");
+            return;
+        }
 
-        // 2. Dựa vào kết quả của Service để cập nhật Giao diện
+        double bidAmount;
+        try {
+            bidAmount = Double.parseDouble(inputAmount);
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.WARNING, "Lỗi", "Giá bid không hợp lệ");
+            return;
+        }
+
+        String result = "SUCCESS"; // sau này thay bằng auctionService.validateAndProcessBid(...)
+
         if (result.equals("SUCCESS")) {
-            double bidAmount = Double.parseDouble(inputAmount);
-
-            // Tạm thời cập nhật UI trực tiếp (Sau này Socket trả về mới cập nhật)
             currentProduct.setPrice(bidAmount);
-            curentprice.setText(String.valueOf(bidAmount));
+            curentprice.setText(String.format("%.0f", bidAmount) + " VND");
             hightestbidder.setText(currentUser);
 
             currentBalance -= bidAmount;
-            balance.setText(String.valueOf(currentBalance));
+            balance.setText(String.format("%.0f", currentBalance) + " VND");
 
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Bạn đã đặt giá thành công!");
             amount.clear();
         } else {
-            // Nếu có lỗi, in câu thông báo lỗi từ Service ra
             showAlert(Alert.AlertType.WARNING, "Lỗi đặt giá", result);
         }
     }

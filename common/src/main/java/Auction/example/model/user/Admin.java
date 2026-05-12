@@ -1,7 +1,6 @@
 package Auction.example.model.user;
 
 import Auction.example.enums.UserRole;
-import Auction.example.model.auction.Auction;
 
 import java.io.Serializable;
 
