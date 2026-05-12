@@ -1,6 +1,6 @@
 package Auction.example.model.auction;
 
-import Auction.example.exceptions.UnauthorizedBidException;
+import Auction.example.enums.InvalidBidError;
 import Auction.example.model.item.items.Item;
 
 import java.io.Serializable;
@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 
 import Auction.example.exceptions.InvalidBidException;
 import Auction.example.exceptions.AuctionClosedException;
+import Auction.example.exceptions.AuctionException;
 import Auction.example.observer.AuctionObserver;
 
 public class Auction implements Serializable {
@@ -52,10 +53,9 @@ public class Auction implements Serializable {
     private transient ScheduledFuture<?> future; // nhiem vu tu dong close auction trong tuong lai
 
     public Auction(String currentAuctionId, String sellerId, double startPrice, long duration,
-                   double minIncrementalPrice, Item auctionItem) {
+                   double minIncrementalPrice) {
         this.currentAuctionId = currentAuctionId;
         this.state = State.OPEN;
-        this.auctionItem = auctionItem;
         this.sellerId = sellerId;
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
@@ -126,16 +126,7 @@ public class Auction implements Serializable {
     }
 
     public synchronized void placeBid(String bidderId, double amount)
-            throws InvalidBidException, AuctionClosedException, UnauthorizedBidException {
-
-        if (bidderId.equals(sellerId)) {
-            throw new UnauthorizedBidException(
-                    "Seller cannot bid on own auction",
-                    sellerId,
-                    currentAuctionId
-            );
-        }
-
+            throws InvalidBidException, AuctionClosedException {
         if (state != State.RUNNING) {
             throw new AuctionClosedException("Auction is not running", currentAuctionId);
         }
