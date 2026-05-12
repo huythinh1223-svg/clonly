@@ -1,30 +1,21 @@
-package Auction.example.model.auction;
+package Auction.example;
 
-import Auction.example.enums.InvalidBidError;
+import Auction.example.exceptions.UnauthorizedBidException;
+import Auction.example.model.auction.Bid;
 import Auction.example.model.item.items.Item;
+import Auction.example.exceptions.InvalidBidException;
+import Auction.example.exceptions.AuctionClosedException;
+import Auction.example.observer.AuctionObserver;
 
-import java.io.Serializable;
-import java.time.Duration;
+import Auction.example.enums.State;
+import java.io.Serializable;import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import Auction.example.exceptions.InvalidBidException;
-import Auction.example.exceptions.AuctionClosedException;
-import Auction.example.exceptions.AuctionException;
-import Auction.example.observer.AuctionObserver;
-
 public class Auction implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    public enum State {
-        OPEN, // moi tao phien dau gia
-        RUNNING, // phien dau gia dang dien ra
-        FINISHED, // phien dau gia ket thuc
-        PAID,
-        CANCELED
-    }
 
     private String currentAuctionId;
     private State state;
@@ -41,7 +32,7 @@ public class Auction implements Serializable {
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private long duration; // tinh theo minutes
+    private long duration;
 
     private double minIncrementalPrice;
 
@@ -50,12 +41,13 @@ public class Auction implements Serializable {
 
     private transient List<AuctionObserver> observers;
     private transient ScheduledExecutorService executor;
-    private transient ScheduledFuture<?> future; // nhiem vu tu dong close auction trong tuong lai
+    private transient ScheduledFuture<?> future;
 
     public Auction(String currentAuctionId, String sellerId, double startPrice, long duration,
-                   double minIncrementalPrice) {
+                   double minIncrementalPrice, Item auctionItem) {
         this.currentAuctionId = currentAuctionId;
         this.state = State.OPEN;
+        this.auctionItem = auctionItem;
         this.sellerId = sellerId;
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
@@ -66,8 +58,7 @@ public class Auction implements Serializable {
         this.bidHistory = new CopyOnWriteArrayList<>();
     }
 
-    // Start the auction
-    public synchronized void start(){
+    public synchronized void start() {
         if (this.state != State.OPEN) {
             return;
         }
@@ -75,12 +66,12 @@ public class Auction implements Serializable {
         this.startTime = LocalDateTime.now();
         this.endTime = startTime.plusMinutes(duration);
 
-         this.state = State.RUNNING;
-         StartAuctionNotifier();
-         autoCloseAuction();
+        this.state = State.RUNNING;
+        StartAuctionNotifier();
+        autoCloseAuction();
     }
 
-    public synchronized void cancel(String reason){
+    public synchronized void cancel(String reason) {
         if (this.state == State.CANCELED || this.state == State.FINISHED || this.state == State.PAID) {
             return;
         }
@@ -92,11 +83,9 @@ public class Auction implements Serializable {
         }
 
         CancelAuctionNotifier(reason);
-
         cleanup();
     }
 
-    // Auto close the auction if khong ai bid them hoac het thoi gian
     private void autoCloseAuction() {
         long remainingMillis = Duration.between(LocalDateTime.now(), endTime).toMillis();
 
@@ -107,26 +96,32 @@ public class Auction implements Serializable {
         }
     }
 
-    //Ket thuc phien dau gia
-    public synchronized void finish(){
-        if (this.state == State.FINISHED || this.state == State.PAID ||  this.state == State.CANCELED) {
+    public synchronized void finish() {
+        if (this.state == State.FINISHED || this.state == State.PAID || this.state == State.CANCELED) {
             return;
         }
 
         state = State.FINISHED;
 
-        if (highestBidderId != null){
+        if (highestBidderId != null) {
             winnerId = highestBidderId;
         }
 
         FinishAuctionNotifier(winnerId, currentPrice);
-
         cleanup();
-
     }
 
     public synchronized void placeBid(String bidderId, double amount)
-            throws InvalidBidException, AuctionClosedException {
+            throws InvalidBidException, AuctionClosedException, UnauthorizedBidException {
+
+        if (bidderId.equals(sellerId)) {
+            throw new UnauthorizedBidException(
+                    "Seller cannot bid on own auction",
+                    sellerId,
+                    currentAuctionId
+            );
+        }
+
         if (state != State.RUNNING) {
             throw new AuctionClosedException("Auction is not running", currentAuctionId);
         }
@@ -163,7 +158,6 @@ public class Auction implements Serializable {
         return false;
     }
 
-    // Tao observer
     public void addObserver(AuctionObserver observer) {
         if (observers == null) {
             observers = new CopyOnWriteArrayList<>();
@@ -192,7 +186,6 @@ public class Auction implements Serializable {
         future = null;
     }
 
-    //wrap observer vao try catch de ko bi crash khi 1 cai bi loi
     private void notifyObservers(java.util.function.Consumer<AuctionObserver> action) {
         if (observers == null) return;
 
@@ -222,53 +215,18 @@ public class Auction implements Serializable {
         notifyObservers(o -> o.onAuctionFinished(currentAuctionId, winnerId, finalPrice));
     }
 
-    public State getState() {
-        return state;
-    }
-
-    public double getCurrentPrice() {
-        return currentPrice;
-    }
-
-    public List<Bid> getBidHistory() {
-        return new ArrayList<>(bidHistory);
-    }
-
-    public String getHighestBidderId() {
-        return highestBidderId;
-    }
-
-    public String getAuctionId() {
-        return currentAuctionId;
-    }
-
-    public String getSellerId() {
-        return sellerId;
-    }
-
-    public String getWinnerId() {
-        return winnerId;
-    }
-
-    public Item getAuctionItem() {
-        return auctionItem;
-    }
-
-    public double getStartPrice() {
-        return startPrice;
-    }
-
-    public double getMinIncrementalPrice() {
-        return minIncrementalPrice;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
+    public State getState() { return state; }
+    public double getCurrentPrice() { return currentPrice; }
+    public List<Bid> getBidHistory() { return new ArrayList<>(bidHistory); }
+    public String getHighestBidderId() { return highestBidderId; }
+    public String getAuctionId() { return currentAuctionId; }
+    public String getSellerId() { return sellerId; }
+    public String getWinnerId() { return winnerId; }
+    public Item getAuctionItem() { return auctionItem; }
+    public double getStartPrice() { return startPrice; }
+    public double getMinIncrementalPrice() { return minIncrementalPrice; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public LocalDateTime getEndTime() { return endTime; }
 
     public long getRemainingTimeMillis() {
         if (endTime == null) {

@@ -1,4 +1,4 @@
-package Auction.example.model.auction;
+package Auction.example;
 
 import Auction.example.exceptions.AuctionClosedException;
 import Auction.example.exceptions.InvalidBidException;
@@ -121,11 +121,9 @@ public class AuctionManager {
         boolean sameBidder = previousBidder != null && previousBidder.equals(bidderId);
 
         if (sameBidder) {
-            // Tránh fail oan nếu chính người đang giữ bid tiếp tục bid cao hơn
             walletService.releaseFunds(previousBidder, previousPrice);
 
             if (!walletService.reserveFunds(bidderId, amount)) {
-                // rollback lại reserve cũ nếu bid mới không đủ tiền
                 walletService.reserveFunds(previousBidder, previousPrice);
                 throw new IllegalStateException("Insufficient balance");
             }
@@ -253,7 +251,6 @@ public class AuctionManager {
             return true;
         }
 
-        // FINISHED chỉ remove được nếu không có người thắng
         return state == Auction.State.FINISHED && auction.getHighestBidderId() == null;
     }
 

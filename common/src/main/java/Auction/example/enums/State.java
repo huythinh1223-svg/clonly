@@ -1,6 +1,6 @@
 package Auction.example.enums;
 
-public enum AuctionState {
+public enum State {
     OPEN, // moi tao phien dau gia
     RUNNING, // phien dau gia dang dien ra
     FINISHED, // phien dau gia ket thuc
